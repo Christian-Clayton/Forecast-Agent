@@ -44,6 +44,7 @@ def test_quant_server_exposes_schema_validated_tools() -> None:
         "bornhuetter_ferguson",
         "evt_pot_fit",
         "ensemble_aggregate",
+        "validate_quantiles",
     } <= names
     assert {"series", "horizon", "method"} <= set(schema["required"])
     assert result.structuredContent["tool_call_id"]
@@ -116,6 +117,18 @@ def test_quant_server_tools_are_callable_from_mcp_client() -> None:
             },
         ),
         ("ensemble_aggregate", {"probabilities": [0.2, 0.5, 0.8]}),
+        (
+            "validate_quantiles",
+            {
+                "quantiles": {
+                    "q05": 1.0,
+                    "q25": 2.0,
+                    "q50": 3.0,
+                    "q75": 4.0,
+                    "q95": 5.0,
+                }
+            },
+        ),
     ]
 
     async def call_all_tools(session):

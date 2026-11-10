@@ -4,6 +4,7 @@ from typing import Literal
 import pandas as pd
 from mcp.server.fastmcp import Context, FastMCP
 
+from forecast_agent.models import Quantiles
 from forecast_agent.quant import (
     baselines,
     credibility,
@@ -211,6 +212,10 @@ def create_quant_server() -> FastMCP:
         return _tool_result(
             ctx, asdict(ensemble_math.ensemble_aggregate(probabilities))
         )
+
+    @server.tool()
+    def validate_quantiles(ctx: Context, quantiles: Quantiles) -> dict[str, object]:
+        return _tool_result(ctx, quantiles.model_dump(mode="json"))
 
     return server
 
