@@ -78,7 +78,13 @@ def fit_frequency_severity(
             f"unsupported frequency distribution: {frequency_distribution}"
         )
 
-    severities = event_table[severity_column].dropna().to_numpy(dtype=float)
+    severity_observations = []
+    for observation in event_table[severity_column].dropna():
+        if isinstance(observation, (list, tuple, np.ndarray)):
+            severity_observations.extend(float(value) for value in observation)
+        else:
+            severity_observations.append(float(observation))
+    severities = np.asarray(severity_observations, dtype=float)
     if severities.size == 0 or not np.all(np.isfinite(severities)):
         raise ValueError("severity column must contain finite observations")
     if np.any(severities <= 0):
