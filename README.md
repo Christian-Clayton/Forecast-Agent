@@ -47,6 +47,24 @@ uv run src/forecast_agent/cli.py
 
 Requires Python 3.11+. Dependencies are via `uv` and `pyproject.toml`.
 
+### LLM provider
+
+The agent uses an OpenAI-compatible provider. Defaults to **OpenRouter** (no configuration needed). To use your own OpenRouter key:
+
+```bash
+export OPENAI_COMPAT_API_KEY=sk-or-v1-<your-key>
+export OPENAI_COMPAT_MODEL=google/gemini-2.0-flash
+```
+
+You can also use a different provider by changing `OPENAI_COMPAT_BASE_URL`. For example:
+
+```bash
+export OPENAI_COMPAT_BASE_URL=https://api.openai.com/v1
+export OPENAI_COMPAT_API_KEY=sk-...
+```
+
+See [Configuration](#configuration) for all available settings.
+
 ---
 
 ## Architecture
@@ -169,16 +187,34 @@ The LLM never produces numbers directly. The numeric-claim validator checks that
 
 ---
 
-## Development status
+## Configuration
 
-| Phase | Status |
-|-------|--------|
-| 0: Skeleton | ✅ Complete |
-| 1: Quant library | ✅ Complete |
-| 2: Synthetic data and gated store | ✅ Complete |
-| 3: MCP servers | ✅ Complete |
-| 4: Agent core | ✅ Complete |
-| 5: Ensemble and spread rule | ✅ Complete |
+| Environment variable | Default | Description |
+|---------------------|---------|-------------|
+| `RUN_MODE` | `backtest` | `backtest` or `live`. Set once per run, cannot change mid-run. |
+| `OPENAI_COMPAT_BASE_URL` | `https://openrouter.ai/api/v1` | Provider base URL (OpenAI-compatible). |
+| `OPENAI_COMPAT_API_KEY` | `None` | API key for the provider. **Set this for OpenRouter or any other OpenAI-compatible provider.** |
+| `OPENAI_COMPAT_MODEL` | `None` | Model to use. |
+| `OPENAI_COMPAT_ENSEMBLE_MODELS` | `None` | Comma-separated list of ensemble diversity models. |
+| `FORECAST_DATABASE_PATH` | `data/forecast-agent.sqlite3` | Ledger database path. |
+| `FORECAST_MAX_STEPS` | `24` | Maximum steps per question. |
+| `FORECAST_MAX_TOKENS` | `12_000` | Maximum tokens per question. |
+| `FORECAST_MAX_COST_USD` | `1.0` | Maximum cost per question in USD. |
+| `LLM_TIMEOUT_SECONDS` | `30.0` | LLM request timeout. |
+| `LLM_MAX_RETRIES` | `2` | LLM retry count. |
+| `FORECAST_SKILLS_DIR` | `skills` | Skills directory path. |
+
+### Example
+
+```bash
+export OPENAI_COMPAT_API_KEY=sk-or-v1-<your-openrouter-key>
+export OPENAI_COMPAT_MODEL=google/gemini-2.0-flash
+export RUN_MODE=live
+```
+
+---
+
+## Development status
 | 6: Eval harness | ✅ Complete |
 | 7a: Run mode guard and clock | ✅ Complete |
 | 7b: Search, fetch, source registry | ⏳ Planned |
