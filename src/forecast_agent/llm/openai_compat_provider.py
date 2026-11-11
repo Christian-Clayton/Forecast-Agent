@@ -24,6 +24,7 @@ class OpenAICompatProvider:
         timeout_seconds: float = 30.0,
         max_retries: int = 2,
         initial_backoff_seconds: float = 0.25,
+        request_delay_seconds: float = 1.0,
         circuit_failure_threshold: int = 5,
         circuit_reset_seconds: float = 30.0,
         client: httpx.AsyncClient | None = None,
@@ -51,6 +52,8 @@ class OpenAICompatProvider:
             raise ValueError("max_retries must be between zero and five")
         if not math.isfinite(initial_backoff_seconds) or initial_backoff_seconds < 0:
             raise ValueError("initial_backoff_seconds must be finite and nonnegative")
+        if not math.isfinite(request_delay_seconds) or request_delay_seconds < 0:
+            raise ValueError("request_delay_seconds must be finite and nonnegative")
         if circuit_failure_threshold < 1:
             raise ValueError("circuit_failure_threshold must be positive")
         if not math.isfinite(circuit_reset_seconds) or circuit_reset_seconds <= 0:
@@ -59,6 +62,7 @@ class OpenAICompatProvider:
         self._base_url = base_url.rstrip("/")
         self._max_retries = max_retries
         self._initial_backoff_seconds = initial_backoff_seconds
+        self._request_delay_seconds = request_delay_seconds
         self._circuit_failure_threshold = circuit_failure_threshold
         self._circuit_reset_seconds = circuit_reset_seconds
         self._sleep = sleep
@@ -82,6 +86,7 @@ class OpenAICompatProvider:
             timeout_seconds=settings.llm_timeout_seconds,
             max_retries=settings.llm_max_retries,
             initial_backoff_seconds=settings.llm_initial_backoff_seconds,
+            request_delay_seconds=1.0,
             circuit_failure_threshold=settings.llm_circuit_failure_threshold,
             circuit_reset_seconds=settings.llm_circuit_reset_seconds,
             client=client,
@@ -145,6 +150,9 @@ class OpenAICompatProvider:
             completion = self._parse_completion(response.json(), model)
             self._consecutive_failures = 0
             self._circuit_opened_at = None
+            # Buffer between requests to avoid rate limiting
+            if self._request_delay_seconds > 0:
+                await self._sleep(self._request_delay_seconds)
             return completion
 
         raise ProviderError("OpenAI-compatible provider retries were exhausted")
@@ -175,15 +183,22 @@ class OpenAICompatProvider:
         if not isinstance(choices, list) or not choices:
             raise ProviderError("provider response contains no completion choices")
         message = choices[0].get("message") if isinstance(choices[0], dict) else None
-        content = message.get("content") if isinstance(message, dict) else None
-        if not isinstance(content, str):
+        if not isinstance(message, dict):
+            raise ProviderError("provider response has no message")
+        # The model may return text in 'content' (standard OpenAI format) or
+        # 'reasoning' (nemotron/industry format)
+        content = message.get("content")
+        reasoning = message.get("reasoning")
+        text = content if isinstance(content, str) else None
+        if reasoning is not None and isinstance(reasoning, str):
+            text = reasoning
+        if not text:
             raise ProviderError("provider response has no text completion")
-
         usage = payload.get("usage")
         if not isinstance(usage, dict):
             usage = {}
         return Completion(
-            content=content,
+            content=text,
             model=str(payload.get("model") or requested_model),
             request_id=str(payload["id"]) if payload.get("id") is not None else None,
             input_tokens=usage.get("prompt_tokens", 0),

@@ -191,24 +191,53 @@ The LLM never produces numbers directly. The numeric-claim validator checks that
 
 | Environment variable | Default | Description |
 |---------------------|---------|-------------|
-| `RUN_MODE` | `backtest` | `backtest` or `live`. Set once per run, cannot change mid-run. |
-| `OPENAI_COMPAT_BASE_URL` | `https://openrouter.ai/api/v1` | Provider base URL (OpenAI-compatible). |
-| `OPENAI_COMPAT_API_KEY` | `None` | API key for the provider. **Set this for OpenRouter or any other OpenAI-compatible provider.** |
-| `OPENAI_COMPAT_MODEL` | `None` | Model to use. |
-| `OPENAI_COMPAT_ENSEMBLE_MODELS` | `None` | Comma-separated list of ensemble diversity models. |
-| `FORECAST_DATABASE_PATH` | `data/forecast-agent.sqlite3` | Ledger database path. |
-| `FORECAST_MAX_STEPS` | `24` | Maximum steps per question. |
-| `FORECAST_MAX_TOKENS` | `12_000` | Maximum tokens per question. |
-| `FORECAST_MAX_COST_USD` | `1.0` | Maximum cost per question in USD. |
-| `LLM_TIMEOUT_SECONDS` | `30.0` | LLM request timeout. |
-| `LLM_MAX_RETRIES` | `2` | LLM retry count. |
-| `FORECAST_SKILLS_DIR` | `skills` | Skills directory path. |
+|| `RUN_MODE` | `backtest` | `backtest` or `live`. Set once per run, cannot change mid-run. |
+|| `OPENAI_COMPAT_BASE_URL` | `https://openrouter.ai/api/v1` | Provider base URL (OpenAI-compatible). |
+|| `OPENAI_COMPAT_API_KEY` | `None` | API key for the provider. **Set this for OpenRouter or any other OpenAI-compatible provider.** |
+|| `OPENAI_COMPAT_MODEL` | `None` | Model to use. |
+|| `OPENAI_COMPAT_ENSEMBLE_MODELS` | `None` | Comma-separated list of ensemble diversity models. |
+| `REQUEST_DELAY_SECONDS` | `1.0` | Delay between requests (seconds) to avoid rate limiting. |
+|| `FORECAST_DATABASE_PATH` | `data/forecast-agent.sqlite3` | Ledger database path. |
+|| `FORECAST_MAX_STEPS` | `75` | Maximum steps per question. |
+|| `FORECAST_MAX_TOKENS` | `50_000` | Maximum tokens per question. |
+|| `FORECAST_MAX_COST_USD` | `2.0` | Maximum cost per question in USD. |
+|| `LLM_TIMEOUT_SECONDS` | `180.0` | LLM request timeout. |
+|| `LLM_MAX_RETRIES` | `3` | LLM retry count. |
+|| `LLM_INITIAL_BACKOFF_SECONDS` | `0.25` | Initial backoff for retries. |
+|| `LLM_CIRCUIT_FAILURE_THRESHOLD` | `5` | Circuit breaker threshold. |
+|| `LLM_CIRCUIT_RESET_SECONDS` | `30.0` | Circuit reset time. |
+|| `FORECAST_SKILLS_DIR` | `skills` | Skills directory path. |
+
+### Recommended rate-limit-friendly models
+
+The following free-tier models are best for rate-limited usage (smallest parameters, fastest responses):
+
+| Model | Parameters | Notes |
+|-------|-----------|-------|
+| `liquid/lfm-3-1.7b:free` | 1.7B | Smallest, fastest, least rate-limited |
+| `liquid/lfm-2.5-2.6b:free` | 2.6B | Small, efficient |
+| `cohere/north-mini-code:free` | ~1B | Code-focused, small |
+
+Or use **nousPortal** (OpenAI-compatible): `https://inference-api.nousresearch.com/v1`
+
+### nousPortal configuration
+
+For nousPortal, set `OPENAI_COMPAT_BASE_URL=https://inference-api.nousresearch.com/v1`:
+
+```bash
+export OPENAI_COMPAT_API_KEY=<nous-portal-key>
+export OPENAI_COMPAT_BASE_URL=https://inference-api.nousresearch.com/v1
+export OPENAI_COMPAT_MODEL=<nous-model-id>
+export RUN_MODE=live
+```
+
+The agent uses the existing `OPENAI_COMPAT_*` environment variables, so no code changes are needed — nousPortal is fully supported via the existing OpenAI-compatible API.
 
 ### Example
 
 ```bash
 export OPENAI_COMPAT_API_KEY=sk-or-v1-<your-openrouter-key>
-export OPENAI_COMPAT_MODEL=google/gemini-2.0-flash
+export OPENAI_COMPAT_MODEL=liquid/lfm-3-1.7b:free
 export RUN_MODE=live
 ```
 

@@ -24,10 +24,10 @@ class Settings(BaseModel):
     openai_compat_api_key: SecretStr | None = None
     openai_compat_model: str | None = None
     ensemble_models: tuple[str, ...] = ()
-    max_steps: int = Field(default=24, ge=1)
-    max_tokens: int = Field(default=12_000, ge=1)
-    max_cost_usd: float = Field(default=1.0, ge=0)
-    llm_timeout_seconds: float = Field(default=30.0, gt=0)
+    max_steps: int = Field(default=75, ge=1)
+    max_tokens: int = Field(default=50_000, ge=1)
+    max_cost_usd: float = Field(default=2.0, ge=0)
+    llm_timeout_seconds: float = Field(default=180.0, gt=0)
     llm_max_retries: int = Field(default=2, ge=0, le=5)
     llm_initial_backoff_seconds: float = Field(default=0.25, ge=0)
     stage_max_retries: int = Field(default=1, ge=0, le=3)
