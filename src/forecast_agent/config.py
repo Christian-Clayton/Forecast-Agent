@@ -69,7 +69,7 @@ class Settings(BaseModel):
             max_tokens=values.get("FORECAST_MAX_TOKENS", 12_000),
             max_cost_usd=values.get("FORECAST_MAX_COST_USD", 1.0),
             llm_timeout_seconds=values.get("LLM_TIMEOUT_SECONDS", 30.0),
-            llm_max_retries=values.get("LLM_MAX_RETRIES", 2),
+            llm_max_retries=values.get("LLM_MAX_RETRIES", 3),
             llm_initial_backoff_seconds=values.get("LLM_INITIAL_BACKOFF_SECONDS", 0.25),
             stage_max_retries=values.get("FORECAST_STAGE_MAX_RETRIES", 1),
             llm_circuit_failure_threshold=values.get(

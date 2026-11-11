@@ -193,10 +193,9 @@ The LLM never produces numbers directly. The numeric-claim validator checks that
 |---------------------|---------|-------------|
 || `RUN_MODE` | `backtest` | `backtest` or `live`. Set once per run, cannot change mid-run. |
 || `OPENAI_COMPAT_BASE_URL` | `https://openrouter.ai/api/v1` | Provider base URL (OpenAI-compatible). |
-|| `OPENAI_COMPAT_API_KEY` | `None` | API key for the provider. **Set this for OpenRouter or any other OpenAI-compatible provider.** |
-|| `OPENAI_COMPAT_MODEL` | `None` | Model to use. |
 || `OPENAI_COMPAT_ENSEMBLE_MODELS` | `None` | Comma-separated list of ensemble diversity models. |
-| `REQUEST_DELAY_SECONDS` | `1.0` | Delay between requests (seconds) to avoid rate limiting. |
+|| `OPENAI_COMPAT_MODEL` | `None` | Model to use. |
+|| `REQUEST_DELAY_SECONDS` | `1.0` | Delay between requests (seconds) to avoid rate limiting. |
 || `FORECAST_DATABASE_PATH` | `data/forecast-agent.sqlite3` | Ledger database path. |
 || `FORECAST_MAX_STEPS` | `75` | Maximum steps per question. |
 || `FORECAST_MAX_TOKENS` | `50_000` | Maximum tokens per question. |
