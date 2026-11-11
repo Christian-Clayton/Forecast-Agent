@@ -50,8 +50,7 @@ def _development_factors(
         pairs = [
             (row[development_age], row[development_age + 1])
             for row in normalized
-            if row[development_age] is not None
-            and row[development_age + 1] is not None
+            if row[development_age] is not None and row[development_age + 1] is not None
         ]
         if not pairs:
             raise ValueError(f"no observations for development age {development_age}")
@@ -85,9 +84,7 @@ def bornhuetter_ferguson(
 ) -> ReservingResult:
     """Estimate IBNR from expected ultimate loss and unreported development."""
     normalized, factors = _development_factors(triangle)
-    if len(premiums) != len(normalized) or len(expected_loss_ratios) != len(
-        normalized
-    ):
+    if len(premiums) != len(normalized) or len(expected_loss_ratios) != len(normalized):
         raise ValueError("premiums and loss ratios must match origin periods")
 
     ultimates = []

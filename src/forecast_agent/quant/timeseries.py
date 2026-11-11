@@ -180,9 +180,10 @@ def walk_forward_score(
         else:
             prediction = fit_arima(training, horizon=horizon).forecast
 
-        errors = [observed - predicted for observed, predicted in zip(
-            actual, prediction, strict=True
-        )]
+        errors = [
+            observed - predicted
+            for observed, predicted in zip(actual, prediction, strict=True)
+        ]
         folds.append(
             FoldError(
                 train_end=train_end,
@@ -203,7 +204,5 @@ def walk_forward_score(
     return WalkForwardResult(
         folds=folds,
         mae=math.fsum(abs(error) for error in all_errors) / len(all_errors),
-        rmse=math.sqrt(
-            math.fsum(error**2 for error in all_errors) / len(all_errors)
-        ),
+        rmse=math.sqrt(math.fsum(error**2 for error in all_errors) / len(all_errors)),
     )

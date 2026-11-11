@@ -30,11 +30,7 @@ def ensemble_aggregate(
 
     ordered = sorted(values)
     trim_count = int(len(ordered) * trim_fraction)
-    trimmed = (
-        ordered[trim_count:-trim_count]
-        if trim_count
-        else ordered
-    )
+    trimmed = ordered[trim_count:-trim_count] if trim_count else ordered
     trimmed_mean = math.fsum(trimmed) / len(trimmed)
 
     if all(value == 0 for value in values):

@@ -63,12 +63,8 @@ def test_aggregate_loss_mc_is_reproducible_from_seed() -> None:
     frequency = FrequencyParameters("poisson", rate=2.0, dispersion=0.0)
     severity = SeverityParameters("gamma", shape=1.0, scale=10.0)
 
-    first = aggregate_loss_mc(
-        frequency, severity, horizon=3, n_sims=1000, seed=17
-    )
-    second = aggregate_loss_mc(
-        frequency, severity, horizon=3, n_sims=1000, seed=17
-    )
+    first = aggregate_loss_mc(frequency, severity, horizon=3, n_sims=1000, seed=17)
+    second = aggregate_loss_mc(frequency, severity, horizon=3, n_sims=1000, seed=17)
 
     assert first == second
     assert first.seed == 17

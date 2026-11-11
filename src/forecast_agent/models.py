@@ -81,3 +81,9 @@ class Score(BoundaryModel):
     pinball: float | None = Field(default=None, ge=0)
     baseline_brier: float | None = Field(default=None, ge=0, le=1)
     skill_score: float | None = None
+
+
+class EnsembleMember(BoundaryModel):
+    model_id: str
+    prompt_id: str
+    probability: float = Field(ge=0, le=1)

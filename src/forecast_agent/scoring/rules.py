@@ -19,9 +19,7 @@ def brier_score(probability: float, outcome: bool | int) -> float:
     return (probability - observed) ** 2
 
 
-def log_score(
-    probability: float, outcome: bool | int, epsilon: float = 1e-15
-) -> float:
+def log_score(probability: float, outcome: bool | int, epsilon: float = 1e-15) -> float:
     """Return clipped negative log likelihood to keep zero-probability cases finite."""
     _validate_probability(probability)
     observed = _validate_binary_outcome(outcome)
@@ -54,7 +52,6 @@ def crps_approx(samples: Sequence[float], observation: float) -> float:
         sample_count
     )
     pairwise_half_term = math.fsum(
-        (2 * index - sample_count + 1) * sample
-        for index, sample in enumerate(ordered)
+        (2 * index - sample_count + 1) * sample for index, sample in enumerate(ordered)
     ) / (sample_count**2)
     return first_term - pairwise_half_term

@@ -49,10 +49,7 @@ class OpenAICompatProvider:
             raise ValueError("timeout_seconds must be finite and positive")
         if not 0 <= max_retries <= 5:
             raise ValueError("max_retries must be between zero and five")
-        if (
-            not math.isfinite(initial_backoff_seconds)
-            or initial_backoff_seconds < 0
-        ):
+        if not math.isfinite(initial_backoff_seconds) or initial_backoff_seconds < 0:
             raise ValueError("initial_backoff_seconds must be finite and nonnegative")
         if circuit_failure_threshold < 1:
             raise ValueError("circuit_failure_threshold must be positive")

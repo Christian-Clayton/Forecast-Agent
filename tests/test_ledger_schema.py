@@ -4,11 +4,7 @@ from pathlib import Path
 import pytest
 
 SCHEMA_PATH = (
-    Path(__file__).parents[1]
-    / "src"
-    / "forecast_agent"
-    / "ledger"
-    / "schema.sql"
+    Path(__file__).parents[1] / "src" / "forecast_agent" / "ledger" / "schema.sql"
 )
 
 

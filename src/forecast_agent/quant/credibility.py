@@ -36,13 +36,12 @@ def buhlmann_credibility(
         observations[group] = group_values
 
     means = {
-        group: math.fsum(values) / len(values)
-        for group, values in observations.items()
+        group: math.fsum(values) / len(values) for group, values in observations.items()
     }
     total_count = sum(map(len, observations.values()))
-    overall_mean = math.fsum(
-        math.fsum(values) for values in observations.values()
-    ) / total_count
+    overall_mean = (
+        math.fsum(math.fsum(values) for values in observations.values()) / total_count
+    )
 
     within_sum_squares = math.fsum(
         (value - means[group]) ** 2
@@ -56,14 +55,13 @@ def buhlmann_credibility(
         len(observations[group]) * (mean - overall_mean) ** 2
         for group, mean in means.items()
     )
-    between_degrees_of_freedom = total_count - math.fsum(
-        len(values) ** 2 for values in observations.values()
-    ) / total_count
+    between_degrees_of_freedom = (
+        total_count
+        - math.fsum(len(values) ** 2 for values in observations.values()) / total_count
+    )
     vhm = max(
         0.0,
-        (
-            weighted_between_sum_squares - epv * (len(observations) - 1)
-        )
+        (weighted_between_sum_squares - epv * (len(observations) - 1))
         / between_degrees_of_freedom,
     )
     k = epv / vhm if vhm > 0 else None
@@ -76,8 +74,7 @@ def buhlmann_credibility(
             count=len(values),
             raw_mean=raw_mean,
             credibility=credibility,
-            blended_estimate=credibility * raw_mean
-            + (1 - credibility) * overall_mean,
+            blended_estimate=credibility * raw_mean + (1 - credibility) * overall_mean,
         )
 
     return CredibilityResult(k=k, epv=epv, vhm=vhm, groups=group_estimates)

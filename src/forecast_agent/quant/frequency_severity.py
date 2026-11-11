@@ -139,9 +139,7 @@ def aggregate_loss_mc(
             f"unsupported frequency distribution: {frequency.distribution}"
         )
     if severity.distribution not in ("gamma", "lognormal"):
-        raise ValueError(
-            f"unsupported severity distribution: {severity.distribution}"
-        )
+        raise ValueError(f"unsupported severity distribution: {severity.distribution}")
     if (
         not math.isfinite(frequency.rate)
         or frequency.rate < 0

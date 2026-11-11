@@ -43,8 +43,7 @@ class DataStore:
     def __init__(self, dataset: SyntheticDataset) -> None:
         self._dataset = dataset
         self._series = {
-            series_id: _copy_frame(frame)
-            for series_id, frame in dataset.series.items()
+            series_id: _copy_frame(frame) for series_id, frame in dataset.series.items()
         }
         self._event_tables = {
             series_id: _copy_frame(frame)
@@ -90,12 +89,9 @@ class DataStore:
             raise ValueError(f"unsupported synthetic reference class: {description}")
 
         eligible = [
-            frame.loc[frame["date"] <= cutoff]
-            for frame in self._series.values()
+            frame.loc[frame["date"] <= cutoff] for frame in self._series.values()
         ]
-        total_exposure = math.fsum(
-            float(frame["exposure"].sum()) for frame in eligible
-        )
+        total_exposure = math.fsum(float(frame["exposure"].sum()) for frame in eligible)
         if total_exposure == 0:
             raise ValueError("no reference-class observations exist as of this date")
         total_count = math.fsum(float(frame["count"].sum()) for frame in eligible)

@@ -13,13 +13,17 @@ def test_ets_returns_forecast_interval_and_diagnostics() -> None:
 
     assert len(result.forecast) == 3
     assert len(result.lower) == len(result.upper) == 3
-    assert all(lower <= value <= upper for lower, value, upper in zip(
-        result.lower, result.forecast, result.upper, strict=True
-    ))
+    assert all(
+        lower <= value <= upper
+        for lower, value, upper in zip(
+            result.lower, result.forecast, result.upper, strict=True
+        )
+    )
     assert "aic" in result.diagnostics
-    assert all(value == pytest.approx(expected) for value, expected in zip(
-        result.forecast, [21.0, 22.0, 23.0], strict=True
-    ))
+    assert all(
+        value == pytest.approx(expected)
+        for value, expected in zip(result.forecast, [21.0, 22.0, 23.0], strict=True)
+    )
 
 
 def test_arima_random_walk_returns_last_value_forecast() -> None:
@@ -31,9 +35,12 @@ def test_arima_random_walk_returns_last_value_forecast() -> None:
 
     assert result.forecast == pytest.approx([20.0, 20.0])
     assert len(result.lower) == len(result.upper) == 2
-    assert all(lower <= value <= upper for lower, value, upper in zip(
-        result.lower, result.forecast, result.upper, strict=True
-    ))
+    assert all(
+        lower <= value <= upper
+        for lower, value, upper in zip(
+            result.lower, result.forecast, result.upper, strict=True
+        )
+    )
     assert "aic" in result.diagnostics
 
 

@@ -1,10 +1,18 @@
 import os
+import enum
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Self
 from urllib.parse import urlparse
 
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
+
+
+class RunMode(str, enum.Enum):
+    """Run mode for the agent. Set once per run, cannot change mid-run."""
+
+    BACKTEST = "backtest"
+    LIVE = "live"
 
 
 class Settings(BaseModel):
@@ -25,6 +33,7 @@ class Settings(BaseModel):
     stage_max_retries: int = Field(default=1, ge=0, le=3)
     llm_circuit_failure_threshold: int = Field(default=5, ge=1)
     llm_circuit_reset_seconds: float = Field(default=30.0, gt=0)
+    run_mode: RunMode = RunMode.BACKTEST
 
     @field_validator("openai_compat_base_url")
     @classmethod
@@ -67,4 +76,7 @@ class Settings(BaseModel):
                 "LLM_CIRCUIT_FAILURE_THRESHOLD", 5
             ),
             llm_circuit_reset_seconds=values.get("LLM_CIRCUIT_RESET_SECONDS", 30.0),
+            run_mode=RunMode(
+                values.get("RUN_MODE", RunMode.BACKTEST.value)
+            ),
         )

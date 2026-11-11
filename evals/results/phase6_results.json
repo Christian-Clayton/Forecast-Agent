@@ -1,0 +1,56 @@
+{
+  "backtest": {
+    "series_id": "cell-00",
+    "mae": 0.4583047874838748,
+    "rmse": 0.6206409249765446,
+    "baseline_mae": 1.0,
+    "baseline_rmse": 1.0,
+    "candidate_selected": true
+  },
+  "classifier_eval": {
+    "series_id": "cell-00",
+    "predicted_domain": "thin",
+    "true_domain": "thin",
+    "accuracy": 1.0
+  },
+  "credibility_eval": {
+    "groups": 3,
+    "blended_mean": 3.0567335383812093,
+    "raw_mean": 3.0,
+    "credibility_values": 0.7919770259355648,
+    "k": 1.313314447592068,
+    "improved": true
+  },
+  "leakage_eval": {
+    "total_attempts": 1,
+    "blocked_attempts": 1,
+    "blocked_rate": 1.0
+  },
+  "citation_validator_eval": {
+    "validated_claims": 1,
+    "uncited_claims": 1
+  },
+  "calibration": {
+    "mean_brier": 0.2,
+    "mean_log_score": 0.25,
+    "sharpness": 0.05
+  },
+  "regression_tracker": {
+    "diff": [
+      {
+        "metric": "brier",
+        "previous_value": 0.0,
+        "current_value": 0.0,
+        "delta": 0.0,
+        "passed": true
+      },
+      {
+        "metric": "log_score",
+        "previous_value": 0.0,
+        "current_value": 0.0,
+        "delta": 0.0,
+        "passed": true
+      }
+    ]
+  }
+}
