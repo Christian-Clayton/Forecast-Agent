@@ -1,9 +1,6 @@
 """Tests for the classifier evaluation harness."""
 
-from forecast_agent.evals.classifier_eval import (
-    ClassifierEvaluator,
-    evaluate_classifier_on_series,
-)
+from forecast_agent.evals.classifier_eval import ClassifierEvaluator
 
 
 def test_classifier_evaluator_runs_on_planted_series():

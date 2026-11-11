@@ -1,8 +1,7 @@
 """Tests for Phase 7a: run mode guard and clock server."""
 
-import sqlite3
 import sys
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -11,7 +10,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from forecast_agent.config import RunMode, Settings
-from forecast_agent.mcp_servers.clock_server import Clock, days_until, now_utc
+from forecast_agent.mcp_servers.clock_server import Clock
 from forecast_agent.mcp_servers.external_guard import (
     ExternalAccessBlocked,
     RunModeGuard,

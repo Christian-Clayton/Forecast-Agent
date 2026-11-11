@@ -1,9 +1,6 @@
 """Tests for the credibility evaluation harness."""
 
-from forecast_agent.evals.credibility_eval import (
-    CredibilityEvaluator,
-    evaluate_credibility_on_groups,
-)
+from forecast_agent.evals.credibility_eval import evaluate_credibility_on_groups
 
 
 def test_credibility_evaluator_runs_on_synthetic_groups():

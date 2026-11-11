@@ -1,9 +1,6 @@
 """Tests for the numeric-claim citation validator eval."""
 
-from forecast_agent.evals.citation_validator_eval import (
-    CitationValidatorEvaluator,
-    evaluate_citation_validator_on_ledger,
-)
+from forecast_agent.evals.citation_validator_eval import CitationValidatorEvaluator
 
 
 def test_citation_validator_evaluator_runs_on_ledger():

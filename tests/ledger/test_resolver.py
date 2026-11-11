@@ -1,13 +1,12 @@
 """Tests for the live ledger resolver."""
 
+import json
 import os
 import sqlite3
-import json
-import pytest
 
 from forecast_agent.ledger.resolver import (
-    get_open_questions,
     get_forecasts_for_questions,
+    get_open_questions,
     record_resolution,
     run_resolver,
 )

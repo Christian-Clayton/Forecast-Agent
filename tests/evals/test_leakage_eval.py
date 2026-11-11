@@ -1,9 +1,6 @@
 """Tests for the leakage evaluation harness."""
 
-from forecast_agent.evals.leakage_eval import (
-    LeakageEvaluator,
-    evaluate_leakage_on_store,
-)
+from forecast_agent.evals.leakage_eval import LeakageEvaluator
 
 
 def test_leakage_evaluator_runs_on_data_store():
