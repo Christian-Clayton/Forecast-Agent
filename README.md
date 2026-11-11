@@ -236,7 +236,7 @@ The agent uses the existing `OPENAI_COMPAT_*` environment variables, so no code 
 ### Example
 
 ```bash
-export OPENAI_COMPAT_API_KEY=sk-or-v1-<your-openrouter-key>
+export OPENAI_COMPAT_API_KEY=***-v1-<your-key>
 export OPENAI_COMPAT_MODEL=liquid/lfm-3-1.7b:free
 export RUN_MODE=live
 ```
