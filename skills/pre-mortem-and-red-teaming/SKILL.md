@@ -82,7 +82,7 @@ The premortem's output is not just "risks accepted" — it's an operational moni
 | **Sycophantic plan-endorsement** | Prospective-hindsight framing gives structured permission to criticize the plan rather than validate it |
 | **Generic risk brainstorming** | Five distinct lenses force specific, non-obvious failure modes rather than a list of vague "things that could go wrong" |
 | **Surface-level concerns only** | "Internal blind spot" lens specifically targets what hasn't been said aloud — the hardest category for a model that defaults to the obvious |
-| **Risk-without-action** | Ranking + mitigation requirement prevents producing a list of worries with no actionable response |
+| **Decision-without-action** | Ranking + mitigation requirement prevents producing a list of worries with no actionable response |
 
 ## Effectiveness Signal
 

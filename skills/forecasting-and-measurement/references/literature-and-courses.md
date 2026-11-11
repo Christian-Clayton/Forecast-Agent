@@ -21,7 +21,7 @@ Reference list only — not loaded by default. Availability of specific free/leg
 | Work | Author | Core contribution |
 |---|---|---|
 | *How to Measure Anything* | Douglas Hubbard | Anything can be measured by reducing uncertainty; calibrated estimation training; value of information |
-| *The Failure of Risk Management* | Douglas Hubbard | Critiques common corporate risk-matrix practices; ties back to actuarial/statistical rigor |
+| *The Failure of Probability Management* | Douglas Hubbard | Critiques common corporate risk-matrix practices; ties back to actuarial/statistical rigor |
 | *The Flaw of Averages* | Sam Savage | Why planning around a single average number systematically misleads under uncertainty |
 | *Thinking in Bets* | Annie Duke | Decision quality vs. outcome quality; resulting bias; probabilistic thinking applied to decisions |
 | *The Art of Statistics* | David Spiegelhalter | Accessible, rigorous overview of statistical reasoning and its limits |
