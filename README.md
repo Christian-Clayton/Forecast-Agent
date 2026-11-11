@@ -52,7 +52,7 @@ Requires Python 3.11+. Dependencies are via `uv` and `pyproject.toml`.
 The agent uses an OpenAI-compatible provider. Defaults to **OpenRouter** (no configuration needed). To use your own OpenRouter key:
 
 ```bash
-export OPENAI_COMPAT_API_KEY=sk-or-v1-<your-key>
+export OPENAI_COMPAT_API_KEY=***-v1-<your-key>
 export OPENAI_COMPAT_MODEL=google/gemini-2.0-flash
 ```
 
