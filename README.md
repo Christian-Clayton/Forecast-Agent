@@ -60,7 +60,7 @@ You can also use a different provider by changing `OPENAI_COMPAT_BASE_URL`. For 
 
 ```bash
 export OPENAI_COMPAT_BASE_URL=https://api.openai.com/v1
-export OPENAI_COMPAT_API_KEY=sk-...
+export OPENAI_COMPAT_API_KEY=***-v1-<your-key>
 ```
 
 See [Configuration](#configuration) for all available settings.
