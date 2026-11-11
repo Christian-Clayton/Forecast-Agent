@@ -1,6 +1,6 @@
 import os
-import enum
 from collections.abc import Mapping
+from enum import StrEnum
 from pathlib import Path
 from typing import Self
 from urllib.parse import urlparse
@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 
 
-class RunMode(str, enum.Enum):
+class RunMode(StrEnum):
     """Run mode for the agent. Set once per run, cannot change mid-run."""
 
     BACKTEST = "backtest"

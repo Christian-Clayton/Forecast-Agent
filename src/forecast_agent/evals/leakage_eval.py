@@ -38,6 +38,7 @@ def evaluate_leakage_on_store() -> LeakageEvaluation:
     # This is a leakage attempt: request data past the actual data end.
     try:
         from datetime import timedelta
+
         from forecast_agent.data.store import DataStore as _Store
 
         future_as_of = latest_date + timedelta(days=10)

@@ -36,7 +36,7 @@ from forecast_agent.data.synth.generator import (
 )
 from forecast_agent.llm.openai_compat_provider import ProviderError
 from forecast_agent.llm.provider import ChatMessage, LLMProvider
-from forecast_agent.mcp_servers.clock_server import get_default_clock, now_utc
+from forecast_agent.mcp_servers.clock_server import get_default_clock
 from forecast_agent.mcp_servers.data_server import create_data_server
 from forecast_agent.mcp_servers.ledger_server import create_ledger_server
 from forecast_agent.mcp_servers.quant_server import create_quant_server

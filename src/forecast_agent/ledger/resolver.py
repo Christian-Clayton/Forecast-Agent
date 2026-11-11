@@ -137,7 +137,12 @@ def record_resolution(
     with _database(ledger_path) as conn:
         conn.execute(
             """
-            INSERT INTO resolutions (question_id, resolved_at, outcome_json, resolver_note)
+            INSERT INTO resolutions (
+                question_id,
+                resolved_at,
+                outcome_json,
+                resolver_note
+            )
             VALUES (?, ?, ?, ?)
             """,
             (question_id, datetime.now(UTC).isoformat(), json.dumps(outcome), note),
@@ -193,7 +198,9 @@ def score_forecasts(
                 quantiles = json.loads(quantiles_json)
                 pinball = (
                     sum(
-                        pinball_loss(outcome, quantiles[f"q{level:02d}"], level / 100)
+                        pinball_loss(
+                            outcome, quantiles[f"q{level:02d}"], level / 100
+                        )
                         for level in (5, 25, 50, 75, 95)
                     )
                     / 5
@@ -212,7 +219,14 @@ def score_forecasts(
             data = score.model_dump(mode="json")
             conn.execute(
                 """
-                INSERT INTO scores (forecast_id, brier, log_score, pinball, baseline_brier, skill_score)
+                INSERT INTO scores (
+                    forecast_id,
+                    brier,
+                    log_score,
+                    pinball,
+                    baseline_brier,
+                    skill_score
+                )
                 VALUES (?, ?, ?, ?, ?, ?)
                 """,
                 (
