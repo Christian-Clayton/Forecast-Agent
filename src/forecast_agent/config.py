@@ -28,7 +28,7 @@ class Settings(BaseModel):
     max_tokens: int = Field(default=50_000, ge=1)
     max_cost_usd: float = Field(default=2.0, ge=0)
     llm_timeout_seconds: float = Field(default=180.0, gt=0)
-    llm_max_retries: int = Field(default=2, ge=0, le=5)
+    llm_max_retries: int = Field(default=3, ge=0, le=5)
     llm_initial_backoff_seconds: float = Field(default=0.25, ge=0)
     stage_max_retries: int = Field(default=1, ge=0, le=3)
     llm_circuit_failure_threshold: int = Field(default=5, ge=1)
@@ -65,10 +65,10 @@ class Settings(BaseModel):
             ensemble_models=tuple(
                 model.strip() for model in models.split(",") if model.strip()
             ),
-            max_steps=values.get("FORECAST_MAX_STEPS", 24),
-            max_tokens=values.get("FORECAST_MAX_TOKENS", 12_000),
-            max_cost_usd=values.get("FORECAST_MAX_COST_USD", 1.0),
-            llm_timeout_seconds=values.get("LLM_TIMEOUT_SECONDS", 30.0),
+            max_steps=values.get("FORECAST_MAX_STEPS", 75),
+            max_tokens=values.get("FORECAST_MAX_TOKENS", 50_000),
+            max_cost_usd=values.get("FORECAST_MAX_COST_USD", 2.0),
+            llm_timeout_seconds=values.get("LLM_TIMEOUT_SECONDS", 180.0),
             llm_max_retries=values.get("LLM_MAX_RETRIES", 3),
             llm_initial_backoff_seconds=values.get("LLM_INITIAL_BACKOFF_SECONDS", 0.25),
             stage_max_retries=values.get("FORECAST_STAGE_MAX_RETRIES", 1),
