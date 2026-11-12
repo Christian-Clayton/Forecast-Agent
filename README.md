@@ -52,7 +52,7 @@ Requires Python 3.11+. Dependencies are via `uv` and `pyproject.toml`.
 The agent uses an OpenAI-compatible provider. Defaults to **OpenRouter** (no configuration needed). To use your own OpenRouter key:
 
 ```bash
-export OPENAI_COMPAT_API_KEY=***-v1-<your-key>
+export OPENAI_COMPAT_TOKEN=***-v1-<your-key>
 export OPENAI_COMPAT_MODEL=google/gemini-2.0-flash
 ```
 
@@ -60,7 +60,7 @@ You can also use a different provider by changing `OPENAI_COMPAT_BASE_URL`. For 
 
 ```bash
 export OPENAI_COMPAT_BASE_URL=https://api.openai.com/v1
-export OPENAI_COMPAT_API_KEY=***-v1-<your-key>
+export OPENAI_COMPAT_TOKEN=***-v1-<your-key>
 ```
 
 See [Configuration](#configuration) for all available settings.
@@ -235,7 +235,7 @@ The agent uses the existing `OPENAI_COMPAT_*` environment variables, so no code 
 ### Example
 
 ```bash
-export OPENAI_COMPAT_API_KEY=***-v1-<your-key>
+export OPENAI_COMPAT_TOKEN=***-v1-<your-key>
 export OPENAI_COMPAT_MODEL=liquid/lfm-3-1.7b:free
 export RUN_MODE=live
 ```
