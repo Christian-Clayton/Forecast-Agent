@@ -21,7 +21,7 @@ class Settings(BaseModel):
     database_path: Path = Path("data/forecast-agent.sqlite3")
     skills_dir: Path = Path("skills")
     openai_compat_base_url: str = "https://openrouter.ai/api/v1"
-    openai_compat_api_key: SecretStr | None = None
+    openai_compat_token: SecretStr | None = None
     openai_compat_model: str | None = None
     ensemble_models: tuple[str, ...] = ()
     max_steps: int = Field(default=75, ge=1)
@@ -50,7 +50,7 @@ class Settings(BaseModel):
     @classmethod
     def from_env(cls, environ: Mapping[str, str] | None = None) -> Self:
         values = os.environ if environ is None else environ
-        api_key = values.get("OPENAI_COMPAT_API_KEY")
+        token = values.get("OPENAI_COMPAT_TOKEN")
         models = values.get("OPENAI_COMPAT_ENSEMBLE_MODELS", "")
         return cls(
             database_path=Path(
@@ -60,7 +60,7 @@ class Settings(BaseModel):
             openai_compat_base_url=values.get(
                 "OPENAI_COMPAT_BASE_URL", "https://openrouter.ai/api/v1"
             ),
-            openai_compat_api_key=SecretStr(api_key) if api_key else None,
+            openai_compat_token=SecretStr(token) if token else None,
             openai_compat_model=values.get("OPENAI_COMPAT_MODEL") or None,
             ensemble_models=tuple(
                 model.strip() for model in models.split(",") if model.strip()

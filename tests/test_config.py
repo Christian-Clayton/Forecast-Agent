@@ -6,7 +6,7 @@ from forecast_agent.config import Settings
 def test_settings_load_provider_and_budget_values_from_environment() -> None:
     settings = Settings.from_env(
         {
-            "OPENAI_COMPAT_API_KEY": "test-key",
+            "OPENAI_COMPAT_TOKEN": "test-key",
             "OPENAI_COMPAT_BASE_URL": "https://openrouter.ai/api/v1",
             "OPENAI_COMPAT_MODEL": "provider/main-model",
             "OPENAI_COMPAT_ENSEMBLE_MODELS": "provider/member-a,provider/member-b",
@@ -17,7 +17,7 @@ def test_settings_load_provider_and_budget_values_from_environment() -> None:
         }
     )
 
-    assert settings.openai_compat_api_key == SecretStr("test-key")
+    assert settings.openai_compat_token == SecretStr("test-key")
     assert settings.openai_compat_base_url == "https://openrouter.ai/api/v1"
     assert settings.openai_compat_model == "provider/main-model"
     assert settings.ensemble_models == ("provider/member-a", "provider/member-b")
