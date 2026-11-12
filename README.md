@@ -224,7 +224,7 @@ Or use **nousPortal** (OpenAI-compatible): `https://inference-api.nousresearch.c
 For nousPortal, set `OPENAI_COMPAT_BASE_URL=https://inference-api.nousresearch.com/v1`:
 
 ```bash
-export OPENAI_COMPAT_API_KEY=<nous-portal-key>
+export OPENAI_COMPAT_TOKEN=<nous-portal-key>
 export OPENAI_COMPAT_BASE_URL=https://inference-api.nousresearch.com/v1
 export OPENAI_COMPAT_MODEL=<nous-model-id>
 export RUN_MODE=live
