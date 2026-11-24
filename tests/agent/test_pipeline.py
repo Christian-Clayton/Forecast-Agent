@@ -65,6 +65,10 @@ class FakeProvider:
                         "candidate_model": "ets",
                     }
                 )
+        elif stage == "tool_selection":
+            # Tool selection runs before model - returns empty tool calls
+            # when no special data is needed
+            output = {"tool_calls": [], "reasoning": "No special tools needed."}
         elif stage == "model":
             self.model_inputs.append(stage_input)
             if self.fat_tailed:
@@ -149,7 +153,7 @@ def test_pipeline_records_ten_self_authored_forecasts_in_ledger(tmp_path) -> Non
 
     assert question_count == 10
     assert forecast_count == 10
-    assert provider.calls == 60
+    assert provider.calls == 70
     assert all(run.forecast is not None for run in runs)
     assert all(run.forecast.tool_call_ids for run in runs)
     assert all(run.forecast.base_rate_source == "unverified_prior" for run in runs)
@@ -168,7 +172,10 @@ def test_fat_tailed_forecast_uses_toolkit_b_and_quantiles(tmp_path) -> None:
 
     assert run.forecast is not None
     assert run.forecast.toolkit == "B"
-    assert run.forecast.probability is None
+    # Fat-tailed binary questions keep toolkit B quantiles AND carry a point
+    # probability so they remain scoreable (binary scoring requires a probability).
+    assert run.forecast.probability is not None
+    assert 0.0 <= run.forecast.probability <= 1.0
     assert run.forecast.quantiles.q95 == 0.95
     assert run.forecast.tool_call_ids
 

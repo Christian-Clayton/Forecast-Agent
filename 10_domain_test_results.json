@@ -1,0 +1,102 @@
+[
+  {
+    "domain": "health",
+    "question": "Will vaccination rates increase next year?",
+    "success": true,
+    "probability": 0.5,
+    "refusal_reason": null,
+    "bottom_line": "Probability: 50.0% | Resolution Date: June 30, 2027",
+    "elapsed": 26.444188833236694,
+    "timestamp": "2026-11-19 19:57:11"
+  },
+  {
+    "domain": "politics",
+    "question": "Will the president be re-elected?",
+    "success": true,
+    "probability": 0.0,
+    "refusal_reason": null,
+    "bottom_line": "Probability: 0.0% (Resolution Date: January 20, 2029)",
+    "elapsed": 27.74412488937378,
+    "timestamp": "2026-11-19 20:00:13"
+  },
+  {
+    "domain": "sports",
+    "question": "Will the home team win the championship?",
+    "success": true,
+    "probability": 0.15,
+    "refusal_reason": null,
+    "bottom_line": "15% probability (0.15) [1], resolving by February 28, 2027.",
+    "elapsed": 34.71387720108032,
+    "timestamp": "2026-11-19 20:03:20"
+  },
+  {
+    "domain": "economics",
+    "question": "Will inflation decrease next year?",
+    "success": true,
+    "probability": 0.48,
+    "refusal_reason": null,
+    "bottom_line": "Probability: 0.48 (48%); Resolution date: January 31, 2028.",
+    "elapsed": 28.71437907218933,
+    "timestamp": "2026-11-19 20:06:14"
+  },
+  {
+    "domain": "science",
+    "question": "Will fusion energy be commercially viable?",
+    "success": true,
+    "probability": 0.15,
+    "refusal_reason": null,
+    "bottom_line": "15% probability (0.15) [tool:1], resolution date: December 31, 2035.",
+    "elapsed": 28.326419830322266,
+    "timestamp": "2026-11-19 20:09:13"
+  },
+  {
+    "domain": "education",
+    "question": "Will online learning adoption continue to grow?",
+    "success": true,
+    "probability": 0.65,
+    "refusal_reason": null,
+    "bottom_line": "Probability: 0.65 [tool:1] | Resolution date: NCES IPEDS 2027-2028 release date (approx. 2029)",
+    "elapsed": 29.512426376342773,
+    "timestamp": "2026-11-19 20:12:14"
+  },
+  {
+    "domain": "environment",
+    "question": "Will global temperatures rise further?",
+    "success": true,
+    "probability": null,
+    "refusal_reason": "The question 'Will global temperatures rise further?' is too vague and lacks a specific temporal boundary, a baseline metric (e.g., relative to pre-industrial levels or specific year average), a specific dataset source, and a resolution date.",
+    "bottom_line": null,
+    "elapsed": 159.5460925102234,
+    "timestamp": "2026-11-19 20:17:24"
+  },
+  {
+    "domain": "technology",
+    "question": "Will AI chatbots replace customer service?",
+    "success": true,
+    "probability": 0.5,
+    "refusal_reason": null,
+    "bottom_line": "Probability: 50% [tool:1]. Resolution Date: December 31, 2028 [tool:1].",
+    "elapsed": 26.267009019851685,
+    "timestamp": "2026-11-19 20:18:11"
+  },
+  {
+    "domain": "business",
+    "question": "Will the stock market reach new highs?",
+    "success": true,
+    "probability": 0.72,
+    "refusal_reason": null,
+    "bottom_line": "Probability: 72% [tool:1]. Resolution Date: December 31, 2027.",
+    "elapsed": 27.944153785705566,
+    "timestamp": "2026-11-19 20:21:13"
+  },
+  {
+    "domain": "general",
+    "question": "Will it rain more next month?",
+    "success": true,
+    "probability": 0.42,
+    "refusal_reason": null,
+    "bottom_line": "Probability: 42% (0.42) | Resolution date: December 31, 2026",
+    "elapsed": 207.77658677101135,
+    "timestamp": "2026-11-19 20:27:13"
+  }
+]

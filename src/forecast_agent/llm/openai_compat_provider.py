@@ -19,7 +19,7 @@ class ProviderError(RuntimeError):
 class OpenAICompatProvider:
     def __init__(
         self,
-        api_key: str | SecretStr | None,
+        provider_api_key: str | SecretStr | None,
         base_url: str = "https://openrouter.ai/api/v1",
         timeout_seconds: float = 30.0,
         max_retries: int = 2,
@@ -31,9 +31,9 @@ class OpenAICompatProvider:
         sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
         clock: Callable[[], float] = time.monotonic,
     ) -> None:
-        if api_key is None:
+        if provider_api_key is None:
             raise ValueError("OpenAI-compatible provider API key is required")
-        key = api_key.get_secret_value() if isinstance(api_key, SecretStr) else api_key
+        key = provider_api_key.get_secret_value() if isinstance(provider_api_key, SecretStr) else provider_api_key
         if not key.strip():
             raise ValueError("OpenAI-compatible provider API key must not be empty")
         parsed_url = urlparse(base_url)
@@ -58,7 +58,7 @@ class OpenAICompatProvider:
             raise ValueError("circuit_failure_threshold must be positive")
         if not math.isfinite(circuit_reset_seconds) or circuit_reset_seconds <= 0:
             raise ValueError("circuit_reset_seconds must be finite and positive")
-        self._api_key = key
+        self._provider_api_key = key
         self._base_url = base_url.rstrip("/")
         self._max_retries = max_retries
         self._initial_backoff_seconds = initial_backoff_seconds
@@ -81,7 +81,7 @@ class OpenAICompatProvider:
         clock: Callable[[], float] = time.monotonic,
     ) -> "OpenAICompatProvider":
         return cls(
-            api_key=settings.openai_compat_api_key,
+            provider_api_key=settings.openai_compat_token,
             base_url=settings.openai_compat_base_url,
             timeout_seconds=settings.llm_timeout_seconds,
             max_retries=settings.llm_max_retries,
@@ -124,7 +124,7 @@ class OpenAICompatProvider:
             try:
                 response = await self._client.post(
                     f"{self._base_url}/chat/completions",
-                    headers={"Authorization": f"Bearer {self._api_key}"},
+                    headers={"Authorization": f"Bearer {self._provider_api_key}"},
                     json=payload,
                 )
             except httpx.TransportError as error:

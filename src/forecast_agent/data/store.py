@@ -110,9 +110,15 @@ class DataStore:
         end: datetime,
         as_of: datetime,
     ) -> pd.DataFrame:
-        start_utc = _utc_datetime(start)
-        end_utc = _utc_datetime(end)
-        cutoff = _utc_datetime(as_of)
+        # Reject naive timestamps (must be timezone-aware)
+        for value, name in [(start, "start"), (end, "end"), (as_of, "as_of")]:
+            if value.tzinfo is None or value.utcoffset() is None:
+                raise ValueError("timestamps must be timezone-aware")
+
+        start_utc = start.astimezone(UTC)
+        end_utc = end.astimezone(UTC)
+        cutoff = as_of.astimezone(UTC)
+
         if start_utc > end_utc:
             raise ValueError("start must be on or before end")
         if end_utc > cutoff:
@@ -121,9 +127,17 @@ class DataStore:
             raise KeyError(f"unknown series: {series_id}")
 
         frame = frames[series_id]
+        # Convert frame dates to pandas datetime for consistent comparison
+        frame_dates = pd.to_datetime(frame["date"])
+        # Normalize to timezone-naive UTC to match all series
+        frame_dates = frame_dates.dt.tz_localize(None)
+        # Normalize start/end/as_of to pandas Timestamps for comparison
+        start_ts = pd.Timestamp(start).tz_localize(None)
+        end_ts = pd.Timestamp(end).tz_localize(None)
+        cutoff_ts = pd.Timestamp(as_of).tz_localize(None)
         mask = (
-            (frame["date"] >= start_utc)
-            & (frame["date"] <= end_utc)
-            & (frame["date"] <= cutoff)
+            (frame_dates >= start_ts)
+            & (frame_dates <= end_ts)
+            & (frame_dates <= cutoff_ts)
         )
         return _copy_frame(frame.loc[mask].reset_index(drop=True))

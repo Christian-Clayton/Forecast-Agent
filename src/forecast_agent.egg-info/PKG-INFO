@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: forecast-agent
+Version: 0.1.0
+Summary: A tool-using actuarial forecasting agent
+Requires-Python: >=3.11
+Requires-Dist: httpx<1.0,>=0.27
+Requires-Dist: mcp<2.0,>=1.0
+Requires-Dist: numpy>=1.26
+Requires-Dist: pandas>=2.1
+Requires-Dist: pydantic>=2.0
+Requires-Dist: scipy>=1.11
+Requires-Dist: statsmodels>=0.14
+Requires-Dist: typer>=0.12
+Provides-Extra: tracing
+Requires-Dist: langfuse>=2.0; extra == "tracing"

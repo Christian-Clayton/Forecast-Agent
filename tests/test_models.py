@@ -95,19 +95,22 @@ def test_forecast_requires_an_estimate() -> None:
         )
 
 
-def test_forecast_rejects_both_probability_and_quantiles() -> None:
-    with pytest.raises(ValidationError):
-        Forecast(
-            id="forecast-1",
-            question_id="question-1",
-            created_at=datetime(2026, 1, 1, tzinfo=UTC),
-            as_of=datetime(2025, 12, 31, tzinfo=UTC),
-            domain_class="thin",
-            classification_reasoning="Stable event rate.",
-            toolkit="A",
-            probability=0.5,
-            quantiles=Quantiles(q05=1, q25=2, q50=3, q75=4, q95=5),
-        )
+def test_forecast_accepts_probability_and_quantiles_together() -> None:
+    # Fat-tailed binary questions carry a point probability (for scoring) plus
+    # quantiles describing uncertainty about that probability. Both are allowed.
+    forecast = Forecast(
+        id="forecast-1",
+        question_id="question-1",
+        created_at=datetime(2026, 1, 1, tzinfo=UTC),
+        as_of=datetime(2025, 12, 31, tzinfo=UTC),
+        domain_class="fat",
+        classification_reasoning="Highly uncertain event rate.",
+        toolkit="B",
+        probability=0.5,
+        quantiles=Quantiles(q05=1, q25=2, q50=3, q75=4, q95=5),
+    )
+    assert forecast.probability == 0.5
+    assert forecast.quantiles.q95 == 5
 
 
 def test_settings_uses_sqlite_database_path_by_default() -> None:

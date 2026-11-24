@@ -40,5 +40,10 @@ def build_decompose_prompt(
 
 
 def validate_decompose(output: dict) -> DecomposeOutput:
-    """Validate decompose output."""
-    return DecomposeOutput(**output)
+    """Validate decompose output.
+
+    Free models sometimes emit extra fields (e.g. _raw with the raw text) that
+    are not part of the DecomposeOutput schema, so we strip them before
+    validating.
+    """
+    return DecomposeOutput(**{k: v for k, v in output.items() if k != "_raw"})

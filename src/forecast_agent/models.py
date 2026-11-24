@@ -62,8 +62,12 @@ class Forecast(BoundaryModel):
 
     @model_validator(mode="after")
     def validate_estimate_shape(self) -> "Forecast":
-        if (self.probability is None) == (self.quantiles is None):
-            raise ValueError("provide exactly one of probability or quantiles")
+        # At least one estimate is required. Binary questions always carry a
+        # probability (needed for Brier/log scoring); fat-tailed binary questions
+        # may additionally carry quantiles describing uncertainty about that
+        # probability. Quantile questions carry quantiles only.
+        if self.probability is None and self.quantiles is None:
+            raise ValueError("provide a probability, quantiles, or both")
         return self
 
 

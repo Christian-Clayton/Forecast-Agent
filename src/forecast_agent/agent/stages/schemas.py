@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -8,6 +8,15 @@ from forecast_agent.models import EnsembleMember, Quantiles
 
 class StageModel(BaseModel):
     model_config = ConfigDict(allow_inf_nan=False, extra="forbid")
+
+
+def _ensure_tz_aware(dt: datetime | None) -> datetime | None:
+    """Ensure a datetime is timezone-aware, defaulting to UTC if naive."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None or dt.utcoffset() is None:
+        return dt.replace(tzinfo=UTC)
+    return dt
 
 
 class IntakeInput(StageModel):
@@ -25,6 +34,8 @@ class IntakeOutput(StageModel):
 
     @model_validator(mode="after")
     def validate_intake(self) -> "IntakeOutput":
+        # Ensure resolves_at is timezone-aware (default to UTC if naive)
+        self.resolves_at = _ensure_tz_aware(self.resolves_at)
         if self.refusal_reason is None and any(
             value is None
             for value in (
@@ -75,6 +86,9 @@ class DecomposeOutput(StageModel):
 
     @model_validator(mode="after")
     def validate_series_window(self) -> "DecomposeOutput":
+        # Ensure dates are timezone-aware (default to UTC if naive)
+        self.start = _ensure_tz_aware(self.start)
+        self.end = _ensure_tz_aware(self.end)
         if self.series_id is not None and (self.start is None or self.end is None):
             raise ValueError("series requests require both start and end")
         if self.start is not None and self.end is not None and self.end < self.start:
@@ -85,11 +99,13 @@ class DecomposeOutput(StageModel):
 class ModelInput(StageModel):
     falsifiable_text: str
     domain_class: Literal["thin", "fat", "mixed"]
+    question_type: Literal["binary", "quantile", "count_range"] = "binary"
     base_rate: float | None = Field(default=None, ge=0, le=1)
     base_rate_source: str
     decomposition: DecomposeOutput
     baseline_result: dict[str, object] | None = None
     candidate_score: dict[str, object] | None = None
+    tool_results: list[dict[str, object]] = Field(default_factory=list)
 
 
 class ModelOutput(StageModel):
@@ -102,6 +118,20 @@ class ModelOutput(StageModel):
         if (self.probability is None) == (self.quantiles is None):
             raise ValueError("provide exactly one of probability or quantiles")
         return self
+
+
+class ToolSelectionInput(StageModel):
+    falsifiable_text: str
+    domain_class: Literal["thin", "fat", "mixed"]
+    question_type: Literal["binary", "quantile", "count_range"]
+    available_tools: list[dict[str, object]]
+    dataset_series: list[str] | None = None
+    as_of: datetime | None = None
+
+
+class ToolSelectionOutput(StageModel):
+    tool_calls: list[dict[str, object]] = Field(default_factory=list)
+    reasoning: str
 
 
 class FinalizeInput(StageModel):

@@ -5,6 +5,10 @@ from pathlib import Path
 from typing import Self
 from urllib.parse import urlparse
 
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv(override=True)
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 
 
@@ -20,9 +24,12 @@ class Settings(BaseModel):
 
     database_path: Path = Path("data/forecast-agent.sqlite3")
     skills_dir: Path = Path("skills")
-    openai_compat_base_url: str = "https://openrouter.ai/api/v1"
+    # Gemini API configuration (free tier) - uses Google's native endpoint
+    openai_compat_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai/"
     openai_compat_token: SecretStr | None = None
-    openai_compat_model: str | None = None
+    # Gemini free models - gemini-3.5-flash-lite and gemini-3.1-flash-lite are working
+    openai_compat_model: str = "gemini-3.5-flash-lite"
+    openai_compat_model_list: tuple[str, ...] = ("gemini-3.5-flash-lite", "gemini-3.1-flash-lite")
     ensemble_models: tuple[str, ...] = ()
     max_steps: int = Field(default=75, ge=1)
     max_tokens: int = Field(default=50_000, ge=1)
@@ -50,20 +57,26 @@ class Settings(BaseModel):
     @classmethod
     def from_env(cls, environ: Mapping[str, str] | None = None) -> Self:
         values = os.environ if environ is None else environ
-        token = values.get("OPENAI_COMPAT_TOKEN")
-        models = values.get("OPENAI_COMPAT_ENSEMBLE_MODELS", "")
+        # Try OPENAI_COMPAT_TOKEN first, then OPENAI_COMPAT_API_KEY
+        token = values.get("OPENAI_COMPAT_TOKEN") or values.get("OPENAI_COMPAT_API_KEY")
+        # Parse model list from environment (comma-separated)
+        model_list_env = values.get("OPENAI_COMPAT_MODEL_LIST", "")
+        model_list = tuple(m.strip() for m in model_list_env.split(",") if m.strip()) if model_list_env else ()
         return cls(
             database_path=Path(
                 values.get("FORECAST_DATABASE_PATH", "data/forecast-agent.sqlite3")
             ),
             skills_dir=Path(values.get("FORECAST_SKILLS_DIR", "skills")),
             openai_compat_base_url=values.get(
-                "OPENAI_COMPAT_BASE_URL", "https://openrouter.ai/api/v1"
+                "OPENAI_COMPAT_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/"
             ),
             openai_compat_token=SecretStr(token) if token else None,
-            openai_compat_model=values.get("OPENAI_COMPAT_MODEL") or None,
+            openai_compat_model=values.get("OPENAI_COMPAT_MODEL") or (
+                model_list[0] if model_list else None
+            ),
+            openai_compat_model_list=model_list,
             ensemble_models=tuple(
-                model.strip() for model in models.split(",") if model.strip()
+                m.strip() for m in values.get("OPENAI_COMPAT_ENSEMBLE_MODELS", "").split(",") if m.strip()
             ),
             max_steps=values.get("FORECAST_MAX_STEPS", 75),
             max_tokens=values.get("FORECAST_MAX_TOKENS", 50_000),

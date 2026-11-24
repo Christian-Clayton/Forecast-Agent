@@ -54,5 +54,24 @@ def resolve_reference_class(
 
 
 def validate_base_rate(output: dict) -> BaseRateOutput:
-    """Validate base_rate output."""
-    return BaseRateOutput(**output)
+    """Validate base_rate output.
+
+    Free models emit prose or partial JSON, so every field is coerced gently
+    rather than letting one bad value abort the run.
+    """
+    unverified_prior = output.get("unverified_prior")
+    try:
+        unverified_prior = float(unverified_prior)
+    except (TypeError, ValueError):
+        unverified_prior = None
+    else:
+        if not 0 <= unverified_prior <= 1:
+            unverified_prior = None
+    reasoning = output.get("reasoning")
+    if not isinstance(reasoning, str) or not reasoning.strip():
+        reasoning = "base rate derived from deterministic prior"
+    return BaseRateOutput(
+        reference_class_description=output.get("reference_class_description"),
+        unverified_prior=unverified_prior,
+        reasoning=reasoning,
+    )

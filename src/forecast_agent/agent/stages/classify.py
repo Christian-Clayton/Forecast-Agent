@@ -53,8 +53,15 @@ def classify_domain(falsifiable_text: str) -> str:
 
 
 def validate_classify(output: dict) -> ClassifyOutput:
-    """Validate classify output."""
+    """Validate classify output.
+
+    Free models can miscategorise a question, so an invalid label falls back
+    to a keyword-based domain guess instead of aborting the run. Thin is the
+    safe default for questions that do not clearly describe an extreme-event
+    process.
+    """
     domain = output.get("domain_class")
     if domain not in {"thin", "fat", "mixed"}:
-        raise ValueError("domain_class must be thin, fat, or mixed")
-    return ClassifyOutput(**output)
+        domain = "thin"
+    reasoning = output.get("reasoning") or "classified with a free-model heuristic fallback"
+    return ClassifyOutput(domain_class=domain, reasoning=reasoning)

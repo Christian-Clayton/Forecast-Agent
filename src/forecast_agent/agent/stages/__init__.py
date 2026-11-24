@@ -14,6 +14,7 @@ from . import (
     finalize,
     intake,
     model,
+    tool_selection,
 )
 
 # Ordered list of stages for Phase 4.
@@ -38,6 +39,7 @@ def get_stage_stub(stage_name: str):
         "base_rate": (base_rate.build_base_rate_prompt, base_rate.validate_base_rate),
         "decompose": (decompose.build_decompose_prompt, decompose.validate_decompose),
         "model": (model.build_model_prompt, model.validate_model),
+        "tool_selection": (tool_selection.build_tool_selection_prompt, tool_selection.validate_tool_calls),
         "ensemble": (ensemble.build_ensemble_prompt, ensemble.validate_ensemble),
         "critique": (critique.build_critique_prompt, critique.validate_critique),
         "finalize": (finalize.build_finalize_prompt, finalize.validate_finalize),

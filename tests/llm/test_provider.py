@@ -36,7 +36,7 @@ def test_openai_compatible_provider_retries_transient_errors_and_parses_usage() 
 
     client = httpx.AsyncClient(transport=httpx.MockTransport(handle_request))
     provider = OpenAICompatProvider(
-        api_key="test-key",
+        provider_api_key="test-key",
         base_url="https://openrouter.ai/api/v1",
         client=client,
         max_retries=1,
@@ -61,7 +61,7 @@ def test_openai_compatible_provider_retries_transient_errors_and_parses_usage() 
 
 def test_openai_compatible_provider_requires_a_configured_api_key() -> None:
     with pytest.raises(ValueError, match="API key"):
-        OpenAICompatProvider(api_key=None)
+        OpenAICompatProvider(provider_api_key=None)
 
 
 def test_openai_compatible_provider_opens_circuit_after_transient_failures() -> None:
@@ -82,7 +82,7 @@ def test_openai_compatible_provider_opens_circuit_after_transient_failures() -> 
 
     client = httpx.AsyncClient(transport=httpx.MockTransport(handle_request))
     provider = OpenAICompatProvider(
-        api_key="test-key",
+        provider_api_key="test-key",
         client=client,
         max_retries=0,
         circuit_failure_threshold=1,
