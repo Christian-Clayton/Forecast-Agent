@@ -2,9 +2,9 @@
 
 **A tool-using forecasting agent with deterministic actuarial and statistical tools, an append-only forecast ledger, and a scoring harness.**
 
-[![tests](https://img.shields.io/badge/tests-113%20passing-brightgreen)](https://github.com/chrisclayton94/forecast-agent)
-[![ruff](https://img.shields.io/badge/code%20style-ruff%20clean-brightgreen)](https://beta.ruff.rs/)
-[![runtime](https://img.shields.io/badge/python-3.11+-blue)](https://www.python.org/downloads/)
+![tests](https://img.shields.io/badge/tests-113%20passing-brightgreen)
+![ruff](https://img.shields.io/badge/code%20style-ruff%20clean-brightgreen)
+![runtime](https://img.shields.io/badge/python-3.11+-blue)
 
 ---
 
@@ -14,6 +14,16 @@
 
 The agent is **deterministic where it matters**: every number in a forecast comes from a tool call that actually executed code. If the input is unfalsifiable, the agent refuses instead of guessing.
 
+The latest version adds **autonomous finance grading**: given a question like "Will AAPL be higher in 7 days?", the agent:
+
+1. Detects the domain (finance, climate, general)
+2. Uses the LLM to make the question specific and falsifiable (e.g. "Will AAPL closing price be higher than $250.00 on December 31, 2027?")
+3. Pulls the latest market prices as they are currently available
+4. Predicts where the price will be in 7 days
+5. Uses the **real Gemini API** (via OpenAI-compatible endpoints) to run the forecasting pipeline
+
+The agent picks its own tool calls: when it needs historical price data, it requests a named series (`cell-00` through `cell-05`) with start and end dates in ISO format. When it does not need historical data, it skips series requests and falls back to the base-rate estimate.
+
 ---
 
 ## Key features
@@ -22,48 +32,75 @@ The agent is **deterministic where it matters**: every number in a forecast come
 - **9 statistical tools** — ETS, ARIMA, walk-forward scoring, frequency-severity, Monte Carlo aggregation, Buhlmann credibility, chain-ladder, EVT, ensemble math
 - **Append-only ledger** — `BEFORE UPDATE` / `BEFORE DELETE` database triggers guarantee immutability
 - **Date-gated retrieval** — `data_server` refuses any request with `end > as_of`
-- **8 skills** on demand — forecasting-and-measurement, fermi-estimation, critical thinking, pre-mortem, scenario planning, decision-making-under-uncertainty, sequential-thinking
+- **Autonomous question enrichment** — an LLM rewrites vague questions into specific falsifiable ones, with domain-specific guidance for finance and climate
+- **JSON parsing fallback** — stage stages recover from conversational model output and extract embedded JSON
+- **8 skills on demand** — forecasting-and-measurement, fermi-estimation, critical thinking, pre-mortem, scenario planning, decision-making-under-uncertainty, sequential-thinking
 - **MCP servers** — quant, data, ledger, clock, external guard
 - **Run mode guard** — backtest vs live mode enforces zero external calls in backtest mode
+- **Multi-provider LLM support** — Gemini (free tier) and OpenRouter with automatic fallback across models
 
 ---
 
 ## Quick start
 
 ```bash
-# Create virtual environment and install
-python -m venv .venv
-uv sync
+# Clone and navigate into the project
+git clone https://github.com/chrisclayton94/forecast-agent.git
+cd forecast-agent
 
-# Run the test suite (113 tests, ~14s)
+# Create virtual environment and install dependencies
+python -m venv .venv
+.venv\Scripts\python -m pip install -e .[dev]
+
+# Set your LLM provider token
+# Gemini free tier (no API key needed)
+export OPENAI_COMPAT_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+export OPENAI_COMPAT_TOKEN=your-secret-key
+export OPENAI_COMPAT_MODEL=gemini-3.5-flash-lite
+
+# Or use OpenRouter
+export OPENAI_COMPAT_BASE_URL=https://openrouter.ai/api/v1
+export OPENAI_COMPAT_TOKEN=redacted
+export OPENAI_COMPAT_MODEL=google/gemini-2.0-flash
+
+# Run the test suite (113 tests, ~20s)
 uv run pytest -q
 
-# Run the full evaluation harness
-uv run src/forecast_agent/evals/run_all.py
-
-# Run the CLI
-uv run src/forecast_agent/cli.py
+# Run a single question
+uv run src/forecast_agent/cli.py "Will AAPL stock be higher in 7 days?"
 ```
 
 Requires Python 3.11+. Dependencies are via `uv` and `pyproject.toml`.
 
-### LLM provider
+---
 
-The agent uses an OpenAI-compatible provider. Defaults to **OpenRouter** (no configuration needed). To use your own OpenRouter key:
+## LLM provider configuration
+
+The agent uses an **OpenAI-compatible** provider. The `gemini_provider.py` connects to the native Google Generative AI `generateContent` endpoint through the `x-goog-api-key` header, so no OpenAI API key is needed.
+
+### Gemini free tier
+
+One GPU model per API key:
 
 ```bash
+export OPENAI_COMPAT_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+export OPENAI_COMPAT_TOKEN=your-gemini-api-key
+export OPENAI_COMPAT_MODEL=gemini-3.5-flash-lite
+```
+
+The `gemini_provider.py` reads `OPENAI_COMPAT_TOKEN` from environment variables, extracts the secret value via `pydantic.SecretStr`, and uses it in the `x-goog-api-key` header. If a key is `AQ...`-prefixed, the agent uses it directly.
+
+### OpenRouter
+
+```bash
+export OPENAI_COMPAT_BASE_URL=https://openrouter.ai/api/v1
 export OPENAI_COMPAT_TOKEN=redacted
 export OPENAI_COMPAT_MODEL=google/gemini-2.0-flash
 ```
 
-You can also use a different provider by changing `OPENAI_COMPAT_BASE_URL`. For example:
+### Model list
 
-```bash
-export OPENAI_COMPAT_BASE_URL=https://api.openai.com/v1
-export OPENAI_COMPAT_TOKEN=redacted
-```
-
-See [Configuration](#configuration) for all available settings.
+`OPENAI_COMPAT_MODEL_LIST` (comma-separated) controls which models the `MultiProvider` rotates through on rate limit or 5xx errors. Defaults to `gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-3.5-flash,gemini-3.6-flash,gemini-3.7-flash,gemini-3.8-flash`.
 
 ---
 
@@ -88,6 +125,7 @@ flowchart LR
         CR -->|skill| FN[finalize]
     end
 
+    LLM -->|system prompt + question| I
     Q -->|quant tools| MD
     D -->|series, reference| MD
     LL[Ledger]
@@ -105,6 +143,7 @@ flowchart LR
 - **Append-only ledger** — `BEFORE UPDATE` / `BEFORE DELETE` triggers on `forecasts` raise `ABORT`.
 - **Date-gated retrieval** — `data_server` refuses any request with `end > as_of`.
 - **No LLM arithmetic** — every number in a forecast references a tool-call ID.
+- **Question enrichment** — an LLM rewrites vague questions into specific falsifiable ones with domain-specific guidance.
 
 ---
 
@@ -120,6 +159,31 @@ flowchart LR
 | **Ensemble** | N independent members (3–5), aggregated in code. If spread ratio exceeds threshold, switch to Toolkit B. | scenario-planning |
 | **Critique** | Pre-mortem and disconfirming hypotheses. May widen intervals or lower confidence. | pre-mortem-and-red-teaming |
 | **Finalize** | Bottom line first, then working. Validator rejects uncited numeric claims. Writes to ledger. | forecasting-and-measurement |
+
+---
+
+## Question enrichment (self-growth)
+
+Before the 8-stage pipeline runs, a **self-growth agent** does the following:
+
+1. Analyzes the question and determines what tools are needed
+2. Registers any missing tools dynamically (e.g. `stock_probability_forecast`, `add_technical_indicators`, `short_term_forecast`)
+3. Runs the pipeline
+4. If the pipeline refuses the question, the agent enriches the question with domain-specific context and retries
+
+For **finance** questions, the enrichment agent adds:
+
+- A named stock/ticker (e.g. AAPL, MSFT, NVDA) and a specific measurement (closing price, adjusted close, market cap)
+- A clear future horizon within 1–30 days of the current date
+- If historical data is needed, a `series_id` from the available list (`cell-00` through `cell-05`) with start and end dates in ISO format
+- Reference to authoritative sources (SEC filings, earnings reports, financial news)
+
+Example enrichment:
+
+```
+Input:  Will AAPL stock be higher in 7 days?
+Output: Will AAPL closing price be higher than $250.00 on December 31, 2027? Reason about the data you have and pick the correct series and horizon.
+```
 
 ---
 
@@ -163,49 +227,26 @@ The live ledger resolver runs on a configurable interval. When a question's reso
 
 ---
 
-## Techniques used
-
-### Actuarial-style forecasting
-
-The agent follows actuarial practice: bottom line first, working after. References include the Buhlmann credibility model for blending short-history groups, chain-ladder for claims development, and EVT (peaks-over-threshold) for fat-tailed series.
-
-### Ensemble diversity
-
-Ensemble members differ in model, prompt framing, and seed. The spread is reported explicitly, and a large spread triggers Toolkit B (scenarios, bounds) rather than a point prediction.
-
-### Date-gated retrieval
-
-All data tools take an `as_of` parameter. A request with `end > as_of` is refused at the data layer, preventing backtest leakage.
-
-### Append-only ledger
-
-The SQLite ledger uses `BEFORE UPDATE` and `BEFORE DELETE` triggers that raise `ABORT`. The only write path is `write_forecast` on the ledger server. No code path can modify past forecasts.
-
-### Deterministic arithmetic
-
-The LLM never produces numbers directly. The numeric-claim validator checks that every numeric claim in the final forecast references a tool-call ID from the same run.
-
----
-
 ## Configuration
 
 | Environment variable | Default | Description |
 |---------------------|---------|-------------|
-|| `RUN_MODE` | `backtest` | `backtest` or `live`. Set once per run, cannot change mid-run. |
-|| `OPENAI_COMPAT_BASE_URL` | `https://openrouter.ai/api/v1` | Provider base URL (OpenAI-compatible). |
-|| `OPENAI_COMPAT_ENSEMBLE_MODELS` | `None` | Comma-separated list of ensemble diversity models. |
-|| `OPENAI_COMPAT_MODEL` | `None` | Model to use. |
-|| `REQUEST_DELAY_SECONDS` | `1.0` | Delay between requests (seconds) to avoid rate limiting. |
-|| `FORECAST_DATABASE_PATH` | `data/forecast-agent.sqlite3` | Ledger database path. |
-|| `FORECAST_MAX_STEPS` | `75` | Maximum steps per question. |
-|| `FORECAST_MAX_TOKENS` | `50_000` | Maximum tokens per question. |
-|| `FORECAST_MAX_COST_USD` | `2.0` | Maximum cost per question in USD. |
-|| `LLM_TIMEOUT_SECONDS` | `180.0` | LLM request timeout. |
-|| `LLM_MAX_RETRIES` | `3` | LLM retry count. |
-|| `LLM_INITIAL_BACKOFF_SECONDS` | `0.25` | Initial backoff for retries. |
-|| `LLM_CIRCUIT_FAILURE_THRESHOLD` | `5` | Circuit breaker threshold. |
-|| `LLM_CIRCUIT_RESET_SECONDS` | `30.0` | Circuit reset time. |
-|| `FORECAST_SKILLS_DIR` | `skills` | Skills directory path. |
+| `RUN_MODE` | `backtest` | `backtest` or `live`. Set once per run, cannot change mid-run. |
+| `OPENAI_COMPAT_BASE_URL` | `https://openrouter.ai/api/v1` | Provider base URL (OpenAI-compatible). |
+| `OPENAI_COMPAT_ENSEMBLE_MODELS` | `None` | Comma-separated list of ensemble diversity models. |
+| `OPENAI_COMPAT_MODEL` | `None` | Model to use. |
+| `OPENAI_COMPAT_MODEL_LIST` | `gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-3.5-flash,gemini-3.6-flash,gemini-3.7-flash,gemini-3.8-flash` | Comma-separated list of models for the `MultiProvider` to rotate through. |
+| `REQUEST_DELAY_SECONDS` | `1.0` | Delay between requests (seconds) to avoid rate limiting. |
+| `FORECAST_DATABASE_PATH` | `data/forecast-agent.sqlite3` | Ledger database path. |
+| `FORECAST_MAX_STEPS` | `75` | Maximum steps per question. |
+| `FORECAST_MAX_TOKENS` | `50_000` | Maximum tokens per question. |
+| `FORECAST_MAX_COST_USD` | `2.0` | Maximum cost per question in USD. |
+| `LLM_TIMEOUT_SECONDS` | `180.0` | LLM request timeout. |
+| `LLM_MAX_RETRIES` | `3` | LLM retry count. |
+| `LLM_INITIAL_BACKOFF_SECONDS` | `0.25` | Initial backoff for retries. |
+| `LLM_CIRCUIT_FAILURE_THRESHOLD` | `5` | Circuit breaker threshold. |
+| `LLM_CIRCUIT_RESET_SECONDS` | `30.0` | Circuit reset time. |
+| `FORECAST_SKILLS_DIR` | `skills` | Skills directory path. |
 
 ### Recommended rate-limit-friendly models
 
@@ -232,22 +273,22 @@ export RUN_MODE=live
 
 The agent uses the existing `OPENAI_COMPAT_*` environment variables, so no code changes are needed — nousPortal is fully supported via the existing OpenAI-compatible API.
 
-### Example
-
-```bash
-export OPENAI_COMPAT_TOKEN=redacted
-export OPENAI_COMPAT_MODEL=liquid/lfm-3-1.7b:free
-export RUN_MODE=live
-```
-
 ---
 
 ## Development status
-| 6: Eval harness | ✅ Complete |
+
+| Phase | Status |
+|-------|--------|
+| 1: Synthetic data store | ✅ Complete |
+| 2: Lifecycle MCP servers (quant, data, ledger, clock) | ✅ Complete |
+| 3: 8-stage forecasting pipeline | ✅ Complete |
+| 4: Actuarial tools (ETS, ARIMA, walk-forward, credibility, EVT, ensemble) | ✅ Complete |
+| 5: Search, fetch, source registry | ✅ Complete |
+| 6: Evaluation harness | ✅ Complete |
 | 7a: Run mode guard and clock | ✅ Complete |
-| 7b: Search, fetch, source registry | ⏳ Planned |
-| 7c: Forecasting platform connector | ⏳ Planned |
-| 7d: Observability and docs | ⏳ Planned |
+| 7b: Live ledger resolver | ✅ Complete |
+| 7c: Forecasting platform connector | ✅ Complete |
+| 7d: Search and fetch MCP servers | ✅ Complete |
 | 8: Local model variant | ⏳ Planned |
 
 ---
